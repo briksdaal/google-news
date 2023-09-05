@@ -1,22 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Dropdown from './Dropdown';
 import IPtoCountry from './IPtoCountry';
 import useNewsFetch from './hooks/useNewsFetch';
 import topics from './assets/topics';
 import countries, { codeToCountry } from './assets/countries';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 function App() {
   const [country, setCountry] = useState('US');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const c2 = searchParams.get('country');
   const { topicId: topic } = useParams();
   const [data, loading, error] = useNewsFetch({
-    country,
+    country: c2,
     topic
   });
   let content = '';
 
+  console.log(country);
+  useEffect(() => {
+    let searchCountry = searchParams.get('country');
+    if (!searchCountry) searchCountry = 'US';
+    setCountry(searchCountry);
+  }, [searchParams]);
+
   function handleCountryChange(country_code) {
+    setSearchParams({ country: country_code });
     setCountry(country_code);
   }
 
@@ -53,7 +63,12 @@ function App() {
       <nav>
         {topics.list.map((t) => (
           <li key={t.name}>
-            <Link to={t.value.length ? `/topics/${t.name.toLowerCase()}` : '/'}>
+            <Link
+              to={
+                t.value.length
+                  ? `/topics/${t.name.toLowerCase()}?country=${country}`
+                  : `/?country=${country}`
+              }>
               {t.name}
             </Link>
           </li>
