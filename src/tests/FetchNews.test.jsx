@@ -5,8 +5,7 @@ import { vi } from 'vitest';
 import FetchNews from '../components/FetchNews';
 import { BrowserRouter } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-
-const nodeFetch = require('node-fetch');
+import nodeFetch from 'node-fetch';
 global.fetch = nodeFetch;
 global.Request = nodeFetch.Request;
 
