@@ -31,7 +31,7 @@ const testData = {
 };
 
 it('Renders title in a heading', () => {
-  render(<NewsContent data={testData} />);
+  render(<NewsContent newsData={testData} />);
 
   expect(
     screen.getByRole('heading', {
@@ -41,7 +41,7 @@ it('Renders title in a heading', () => {
 });
 
 it('Renders items in data as links', () => {
-  render(<NewsContent data={testData} />);
+  render(<NewsContent newsData={testData} />);
 
   const links = screen.getAllByRole('link');
 

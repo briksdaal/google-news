@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
 import { codeToCountry } from '../assets/countries';
 
-function NewsContent({ data }) {
+function NewsContent({ newsData }) {
   return (
     <>
-      <h1>{data.mainTitle + ' - ' + codeToCountry[data.country]}</h1>
-      {data.items.map((item) => (
+      <h1>{newsData.mainTitle + ' - ' + codeToCountry[newsData.country]}</h1>
+      {newsData.items.map((item) => (
         <li key={item.title}>
           <a
             href={item.link}
@@ -20,7 +20,7 @@ function NewsContent({ data }) {
 }
 
 NewsContent.propTypes = {
-  data: PropTypes.object
+  newsData: PropTypes.object
 };
 
 export default NewsContent;
