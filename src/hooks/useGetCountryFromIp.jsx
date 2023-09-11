@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
-export default function useGetCountryFromIp({ ip }) {
+export default function useGetCountryFromIp(ipObj) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   useEffect(() => {
+    const ip = ipObj.ip;
     async function fetchData() {
       if (ip === '') return;
       setLoading(true);
@@ -28,7 +29,7 @@ export default function useGetCountryFromIp({ ip }) {
     }
 
     fetchData();
-  }, [ip]);
+  }, [ipObj]);
 
   return [data, loading, error];
 }

@@ -38,6 +38,8 @@ const resWithNull = {
 
 const errorPath = 'errorPath';
 
+const badIPFormatPath = '6.6';
+
 const server = setupServer(
   ...[
     rest.get(`/geo/${resWithSupportedCountry.IPv4}`, (req, res, ctx) => {
@@ -51,6 +53,9 @@ const server = setupServer(
     }),
     rest.get(`/geo/${resWithNull.IPv4}`, (req, res, ctx) => {
       return res(ctx.delay(), ctx.json(resWithNull));
+    }),
+    rest.get(`/geo/${badIPFormatPath}`, (req, res, ctx) => {
+      return res(ctx.delay(), ctx.json(resWithSupportedCountry));
     }),
     rest.get(`/geo/${errorPath}`, (req, res, ctx) => {
       return res(ctx.delay(), ctx.status(500));
@@ -211,8 +216,59 @@ describe('Handling of different API responses', () => {
     await user.type(textbox, errorPath);
     await user.click(button);
 
-    const errorMsg = await screen.findByText('error: 500', { exact: false });
+    const errorMsg = await screen.findByText(
+      'Error encountered - disabling your adblocker might help'
+    );
 
     expect(errorMsg).toBeInTheDocument();
+  });
+});
+
+describe('Advanced form and input field features', () => {
+  it("Updates input value to match IP in received data (in case of bad format response is user's IP)", async () => {
+    const resultString = `IP address ${resWithSupportedCountry.IPv4} seems to be from ${resWithSupportedCountry.country_name}`;
+    const user = userEvent.setup();
+    render(<IPtoCountry />);
+    const textbox = screen.getByRole('textbox');
+    const button = screen.getByRole('button', { name: 'Check IP' });
+
+    await user.type(textbox, badIPFormatPath);
+    await user.click(button);
+    await screen.findByText(resultString, { exact: false });
+
+    expect(textbox).toHaveValue(resWithSupportedCountry.IPv4);
+  });
+
+  it('Removes form response if response was received and a change was made to the input field', async () => {
+    const resultString = `IP address ${resWithSupportedCountry.IPv4} seems to be from ${resWithSupportedCountry.country_name}`;
+    const user = userEvent.setup();
+    render(<IPtoCountry />);
+    const textbox = screen.getByRole('textbox');
+    const button = screen.getByRole('button', { name: 'Check IP' });
+
+    await user.type(textbox, badIPFormatPath);
+    await user.click(button);
+    await screen.findByText(resultString, { exact: false });
+
+    await user.type(textbox, '4');
+
+    expect(
+      screen.queryByText(resultString, { exact: false })
+    ).not.toBeInTheDocument();
+  });
+
+  it("Calls the fetch inside the hook even if input value hasn't changed", async () => {
+    const spyFetch = vi.spyOn(global, 'fetch');
+    const user = userEvent.setup();
+    render(<IPtoCountry />);
+    const textbox = screen.getByRole('textbox');
+    const button = screen.getByRole('button', { name: 'Check IP' });
+
+    await user.type(textbox, badIPFormatPath);
+    await user.click(button);
+    await user.click(button);
+    await user.click(button);
+
+    expect(spyFetch).toHaveBeenCalledTimes(3);
   });
 });
