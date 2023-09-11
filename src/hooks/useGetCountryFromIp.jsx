@@ -10,7 +10,8 @@ export default function useGetCountryFromIp({ ip }) {
       setLoading(true);
       try {
         const res = await fetch('/geo/' + ip);
-        if (res.status > 200) throw new Error('Code ' + res.status);
+        if (res.status > 200)
+          throw new Error(`${res.status}: ${res.statusText}`);
         let json = await res.json();
         if (json.IPv4 === 'Not found') {
           json.IPv4 = ip;
