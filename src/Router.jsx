@@ -1,19 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import App from './App';
+import routesConfig from './routesConfig';
 
 const Router = () => {
-  const router = createBrowserRouter([
-    {
-      path: '/',
-      element: <App />,
-      children: [
-        {
-          path: 'topics/:topicId',
-          element: <App />
-        }
-      ]
-    }
-  ]);
+  const router = createBrowserRouter(routesConfig);
 
   return <RouterProvider router={router} />;
 };
