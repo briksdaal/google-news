@@ -1,9 +1,10 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useNewsFetch from '../hooks/useNewsFetch';
 import NewsContent from './NewsContent';
 
-function FetchNews({ country }) {
+function FetchNews() {
+  const country = useOutletContext();
   const { topicId: topic } = useParams();
 
   const [data, loading, error] = useNewsFetch({ country, topic });

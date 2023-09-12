@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node';
 import { vi } from 'vitest';
 import FetchNews from '../components/FetchNews';
 import { BrowserRouter } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import nodeFetch from 'node-fetch';
 
 global.fetch = nodeFetch;
@@ -18,7 +18,8 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useParams: vi.fn()
+    useParams: vi.fn(),
+    useOutletContext: vi.fn()
   };
 });
 
@@ -75,7 +76,8 @@ it('Renders loading at first', () => {
 
 it('Renders english top news if country serach param is US and topic is null', async () => {
   useParams.mockImplementation(() => ({}));
-  render(<FetchNews country={'US'} />, { wrapper: BrowserRouter });
+  useOutletContext.mockImplementation(() => 'US');
+  render(<FetchNews />, { wrapper: BrowserRouter });
 
   await screen.findByRole('heading', { name: 'English Top News' });
 
@@ -90,7 +92,8 @@ it('Renders english top news if country serach param is US and topic is null', a
 
 it('Renders topic news in chosen language if both country and topic are provided', async () => {
   useParams.mockImplementation(() => ({ topicId: 'business' }));
-  render(<FetchNews country={'GB'} />, { wrapper: BrowserRouter });
+  useOutletContext.mockImplementation(() => 'GB');
+  render(<FetchNews />, { wrapper: BrowserRouter });
 
   await screen.findByRole('heading', { name: 'United Kingdom Business News' });
 
@@ -102,6 +105,7 @@ it('Renders topic news in chosen language if both country and topic are provided
 
 it("Continues to render loading if search params don't contain country", async () => {
   useParams.mockImplementation(() => ({}));
+  useOutletContext.mockImplementation(() => '');
   render(<FetchNews />, { wrapper: BrowserRouter });
 
   await screen.findByTestId('no-country');
@@ -115,13 +119,36 @@ it("Continues to render loading if search params don't contain country", async (
   expect(screen.queryByText('error', { exact: false })).not.toBeInTheDocument();
 });
 
-it('Shows an error message if an error is thrown', async () => {
+it('Shows an error message if country is not supported', async () => {
+  useOutletContext.mockImplementation(() => 'AA');
   server.use(
     rest.get('/api', (req, res, ctx) => {
       return res(ctx.status(500));
     })
   );
-  render(<FetchNews country={'US'} />, { wrapper: BrowserRouter });
+  render(<FetchNews />, { wrapper: BrowserRouter });
+
+  await screen.findByText('Error: country is not supported', { exact: false });
+
+  expect(
+    screen.getByText('Error: country is not supported', { exact: false })
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole('heading', { name: 'English Top News' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('heading', { name: 'Loading...' })
+  ).not.toBeInTheDocument();
+});
+
+it('Shows an error message if an error is thrown', async () => {
+  useOutletContext.mockImplementation(() => 'US');
+  server.use(
+    rest.get('/api', (req, res, ctx) => {
+      return res(ctx.status(500));
+    })
+  );
+  render(<FetchNews />, { wrapper: BrowserRouter });
 
   await screen.findByText('error', { exact: false });
 
