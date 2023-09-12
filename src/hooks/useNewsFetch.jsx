@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import createUrl from '../helpers/createUrl';
 import parseXML from '../helpers/parseXML';
+import { codeToCountry } from '../assets/countries';
 
 export default function useNewsFetch({ country, topic }) {
   const [data, setData] = useState(null);
@@ -14,6 +15,9 @@ export default function useNewsFetch({ country, topic }) {
       }
       setLoading({ state: true, type: 'fetching' });
       try {
+        if (!(country in codeToCountry)) {
+          throw new Error('Country is not supported');
+        }
         const url = createUrl(country, topic);
         const res = await fetch(url);
         if (res.status > 200) {
