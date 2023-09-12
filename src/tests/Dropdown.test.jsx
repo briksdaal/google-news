@@ -1,35 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import countries from '../assets/countries';
 import { vi } from 'vitest';
 import Dropdown from '../components/Dropdown';
 
 const handleChange = vi.fn();
 
-const dropdownData = {
-  label: 'Title',
-  list: [
-    {
-      name: 'itemnumber1',
-      value: '111'
-    },
-    {
-      name: 'itemnumber2',
-      value: '222'
-    },
-    {
-      name: 'itemnumber3',
-      value: '333'
-    },
-    {
-      name: 'itemnumber4',
-      value: '444'
-    },
-    {
-      name: 'itemnumber5',
-      value: '555'
-    }
-  ]
-};
+const dropdownData = countries;
 
 it('Renders label', () => {
   render(<Dropdown dropdownData={dropdownData} />);
@@ -39,18 +16,41 @@ it('Renders label', () => {
   ).toBeInTheDocument();
 });
 
-it('Renders options with correct content and value', () => {
+it('Renders the first option as disabled "Select a country"', () => {
+  render(<Dropdown dropdownData={dropdownData} />);
+
+  const dropdown = screen.getByRole('combobox');
+  const options = within(dropdown).getAllByRole('option');
+  const firstOption = options[0];
+
+  expect(firstOption).toHaveTextContent('Select a country');
+  expect(firstOption).toHaveValue('');
+  expect(firstOption).toHaveAttribute('disabled');
+});
+
+it('Renders selectable options with correct content and value', () => {
   render(<Dropdown dropdownData={dropdownData} />);
 
   const dropdown = screen.getByRole('combobox');
   const options = within(dropdown).getAllByRole('option');
 
+  options.shift();
   expect(options).toHaveLength(dropdownData.list.length);
 
   options.forEach((op, i) => {
     expect(op).toHaveTextContent(dropdownData.list[i].name);
     expect(op).toHaveValue(dropdownData.list[i].value);
+    expect(op).not.toHaveAttribute('disabled');
   });
+});
+
+it('Shows disabled "Select a country" option if "selected" prop is not a supported country code', () => {
+  render(<Dropdown dropdownData={dropdownData} />);
+
+  expect(screen.getByRole('combobox')).toHaveValue('');
+  expect(
+    screen.getByRole('option', { name: 'Select a country' }).selected
+  ).toBe(true);
 });
 
 it('Shows selected option according to selected prop', () => {
