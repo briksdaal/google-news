@@ -6,6 +6,7 @@ import FetchNews from '../components/FetchNews';
 import { BrowserRouter } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import nodeFetch from 'node-fetch';
+
 global.fetch = nodeFetch;
 global.Request = nodeFetch.Request;
 
@@ -13,15 +14,10 @@ vi.mock('../components/NewsContent', () => ({
   default: ({ newsData }) => <h2>{newsData.mainTitle}</h2>
 }));
 
-const mockGetSearchParams = vi.fn();
-
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useSearchParams: () => {
-      return [{ get: mockGetSearchParams }, null];
-    },
     useParams: vi.fn()
   };
 });
@@ -65,9 +61,8 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 it('Renders loading at first', () => {
-  mockGetSearchParams.mockImplementation(() => 'US');
   useParams.mockImplementation(() => ({}));
-  render(<FetchNews />, { wrapper: BrowserRouter });
+  render(<FetchNews country={'US'} />, { wrapper: BrowserRouter });
 
   expect(
     screen.getByRole('heading', { name: 'Loading...' })
@@ -79,9 +74,8 @@ it('Renders loading at first', () => {
 });
 
 it('Renders english top news if country serach param is US and topic is null', async () => {
-  mockGetSearchParams.mockImplementation(() => 'US');
   useParams.mockImplementation(() => ({}));
-  render(<FetchNews />, { wrapper: BrowserRouter });
+  render(<FetchNews country={'US'} />, { wrapper: BrowserRouter });
 
   await screen.findByRole('heading', { name: 'English Top News' });
 
@@ -95,9 +89,8 @@ it('Renders english top news if country serach param is US and topic is null', a
 });
 
 it('Renders topic news in chosen language if both country and topic are provided', async () => {
-  mockGetSearchParams.mockImplementation(() => 'GB');
   useParams.mockImplementation(() => ({ topicId: 'business' }));
-  render(<FetchNews />, { wrapper: BrowserRouter });
+  render(<FetchNews country={'GB'} />, { wrapper: BrowserRouter });
 
   await screen.findByRole('heading', { name: 'United Kingdom Business News' });
 
@@ -108,7 +101,6 @@ it('Renders topic news in chosen language if both country and topic are provided
 });
 
 it("Continues to render loading if search params don't contain country", async () => {
-  mockGetSearchParams.mockImplementation(() => '');
   useParams.mockImplementation(() => ({}));
   render(<FetchNews />, { wrapper: BrowserRouter });
 
@@ -129,8 +121,7 @@ it('Shows an error message if an error is thrown', async () => {
       return res(ctx.status(500));
     })
   );
-  mockGetSearchParams.mockImplementation(() => 'US');
-  render(<FetchNews />, { wrapper: BrowserRouter });
+  render(<FetchNews country={'US'} />, { wrapper: BrowserRouter });
 
   await screen.findByText('error', { exact: false });
 

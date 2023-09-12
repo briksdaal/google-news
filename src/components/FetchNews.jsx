@@ -1,11 +1,10 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import useNewsFetch from '../hooks/useNewsFetch';
 import NewsContent from './NewsContent';
 
-function FetchNews() {
-  const [searchParams] = useSearchParams();
+function FetchNews({ country }) {
   const { topicId: topic } = useParams();
-  const country = searchParams.get('country');
 
   const [data, loading, error] = useNewsFetch({ country, topic });
 
@@ -15,5 +14,9 @@ function FetchNews() {
 
   return <NewsContent newsData={data} />;
 }
+
+FetchNews.propTypes = {
+  country: PropTypes.string
+};
 
 export default FetchNews;
