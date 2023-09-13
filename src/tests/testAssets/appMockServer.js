@@ -48,28 +48,22 @@ const server = setupServer(
       if (hl === 'en-GB' && gl === 'GB' && ceid === 'GB:en')
         return res(ctx.xml(gbTopNewsXML));
     }),
-    rest.get(
-      '/api/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtVnVHZ0pWVXlnQVAB',
-      (req, res, ctx) => {
-        const hl = req.url.searchParams.get('hl');
-        const gl = req.url.searchParams.get('gl');
-        const ceid = req.url.searchParams.get('ceid');
-        if (hl === 'en-US' && gl === 'US' && ceid === 'US:en')
-          return res(ctx.xml(usBusinessXML));
-        if (hl === 'en-GB' && gl === 'GB' && ceid === 'GB:en')
-          return res(ctx.xml(gbBusinessXML));
-      }
-    ),
-    rest.get(
-      '/api/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB',
-      (req, res, ctx) => {
-        const hl = req.url.searchParams.get('hl');
-        const gl = req.url.searchParams.get('gl');
-        const ceid = req.url.searchParams.get('ceid');
-        if (hl === 'en-US' && gl === 'US' && ceid === 'US:en')
-          return res(ctx.xml(usSportsXML));
-      }
-    ),
+    rest.get('/api/topics/business', (req, res, ctx) => {
+      const hl = req.url.searchParams.get('hl');
+      const gl = req.url.searchParams.get('gl');
+      const ceid = req.url.searchParams.get('ceid');
+      if (hl === 'en-US' && gl === 'US' && ceid === 'US:en')
+        return res(ctx.xml(usBusinessXML));
+      if (hl === 'en-GB' && gl === 'GB' && ceid === 'GB:en')
+        return res(ctx.xml(gbBusinessXML));
+    }),
+    rest.get('/api/topics/sports', (req, res, ctx) => {
+      const hl = req.url.searchParams.get('hl');
+      const gl = req.url.searchParams.get('gl');
+      const ceid = req.url.searchParams.get('ceid');
+      if (hl === 'en-US' && gl === 'US' && ceid === 'US:en')
+        return res(ctx.xml(usSportsXML));
+    }),
     rest.get(`/geo/${resWithSupportedCountry.IPv4}`, (req, res, ctx) => {
       return res(ctx.json(resWithSupportedCountry));
     })

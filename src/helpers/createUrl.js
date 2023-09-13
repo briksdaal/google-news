@@ -1,8 +1,5 @@
-import { topicToHash } from '../assets/topics';
-
 export default function createUrl(country, topic) {
-  const topicHash = topic ? topicToHash[topic] : null;
-  const topicPrefix = topic ? `/topics/${topicHash}` : '';
+  const topicUrlPart = topic ? `/topics/${topic}` : '';
 
-  return `/api${topicPrefix}?hl=en-${country}&gl=${country}&ceid=${country}:en`;
+  return `/api${topicUrlPart}?hl=en-${country}&gl=${country}&ceid=${country}:en`;
 }
